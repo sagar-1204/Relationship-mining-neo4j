@@ -1,0 +1,17 @@
+CREATE (chiefComplaints:Section {name: "CHIEF COMPLAINTS"})
+
+CREATE (fever:Disorder {name: "fever"})
+CREATE (chiefComplaints)-[:HAS_CHIEF_COMPLAINT]->(fever)
+
+CREATE (pain:Disorder {name: "pain"})
+CREATE (abdomen:Anatomy {name: "abdomen"})
+CREATE (lower:Laterality {name: "lower"})
+CREATE (chiefComplaints)-[:HAS_CHIEF_COMPLAINT]->(pain)
+CREATE (pain)-[:HAS_ANATOMY]->(abdomen)
+CREATE (pain)-[:HAS_LATERALITY]->(lower)
+CREATE (pain)-[:Level1 {name: "Abdominal pain (finding)", code: "21522001", confidenceScore: 0.775}]->(abdomen)
+CREATE (pain)-[:Level1 {name: "Pain in lower limb (finding)", code: "10601006", confidenceScore: 0.60526}]->(lower)
+
+CREATE (vomiting:Disorder {name: "vomiting"})
+CREATE (chiefComplaints)-[:HAS_CHIEF_COMPLAINT]->(vomiting)
+CREATE (vomiting)-[:HAS_OTHERS]->(c_o:Others {name: "C / O"})

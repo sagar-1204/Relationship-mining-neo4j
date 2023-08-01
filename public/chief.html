@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Graph Visualization</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style type="text/css">
+      body {
+        font-family: Verdana, Arial, sans-serif;
+      }
+
+      .graph-container {
+        background-color: whitesmoke;
+        box-shadow: 6px 6px 10px rgba(0.2, 0.2, 0.2, 0.2);
+        border: 0px solid #ccc;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        position: relative;
+
+        opacity: 0;
+        transform: translateY(100%);
+        animation: slideInFromBottom 0.8s ease-out forwards;
+      }
+
+      .zoom-controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+
+      .zoom-btn {
+        background-color: #0866a4;
+        color: white;
+        font-weight: 1000;
+        border: none;
+        border-radius: 40px;
+        font-size: 16px;
+        padding: 6px 10px;
+        margin-left: 5px;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+      }
+
+      .zoom-btn:hover {
+        background-color: #ddd;
+      }
+
+      .legend-symbol {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+      }
+
+      .legend-diamond {
+        background-color: #ff1493;
+        transform: rotate(45deg);
+      }
+      .container {
+        position: relative;
+      }
+      #graph {
+        height: 450px;
+        margin-top: 40px;
+      }
+      .legend-container {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      .legend-button {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: none;
+        display: inline-block;
+        margin-right: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.9);
+      }
+      .legend-black {
+        background-color: #ff8c00;
+      }
+      .legend-blue {
+        background-color: #05a3a4;
+      }
+
+      .legend-pink {
+        background-color: #e0115f;
+        transform: rotate(45deg);
+      }
+
+      .legend-pink::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #e0115f;
+      }
+      .legend-label {
+        vertical-align: middle;
+        margin-right: 120px;
+      }
+      .legend-container {
+        padding-right: 100px;
+      }
+
+      .search-icon {
+        background-size: cover;
+        width: 20px;
+        height: 20px;
+        border: none;
+        margin-right: 5px;
+        cursor: pointer;
+        outline: none;
+      }
+      /* Keyframe animation for sliding in from the right */
+      @keyframes slideInFromRight {
+        0% {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Keyframe animation for sliding in from the bottom */
+      @keyframes slideInFromBottom {
+        0% {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .search-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 30px;
+        transition: width 0.3s ease;
+        transform: translateY(-100%);
+        animation: slideInFromRight 0.5s ease-out forwards;
+        background-color: #0866a4;
+        border-radius: 50px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      @keyframes slideInFromRight {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      .search-container:hover {
+        width: 200px;
+      }
+
+      #search-bar {
+        width: 100%;
+        height: 30px;
+        border: none;
+        padding: 0 30px;
+        background-color: #fff;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 20px;
+      }
+
+      .search-container:hover #search-bar {
+        opacity: 1;
+      }
+
+      .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 22px;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+        color: white;
+      }
+      .topic-frame {
+        background-color: rgb(3, 34, 45);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+        border-radius: 10px;
+        margin: 0 auto;
+        max-width: 900px;
+        font-family: Verdana;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .topic-frame h2 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        transform: translateY(-100%);
+        animation: slideInFromTop 0.5s ease-out forwards;
+      }
+
+      @keyframes slideInFromTop {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+      /* Media queries for responsiveness */
+
+      @media screen and (max-width: 600px) {
+        .graph-container {
+          padding: 10px;
+        }
+
+        .zoom-controls {
+          top: 10px;
+          right: 10px;
+        }
+
+        .zoom-btn {
+          font-size: 14px;
+          padding: 4px 8px;
+        }
+
+        .legend-container {
+          top: 10px;
+          left: 10px;
+        }
+
+        .legend-button {
+          margin-right: 5px;
+        }
+
+        .legend-label {
+          margin-right: 80px;
+        }
+
+        .search-container {
+          top: 10px;
+          right: 10px;
+        }
+
+        #search-bar {
+          height: 24px;
+          padding: 0 5px;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="topic-frame">
+      <h2 class="mt-5 mb-4 text-center">
+        CHIEF COMPLAINTS GRAPH VISUALIZATION
+      </h2>
+    </div>
+    <div class="container">
+      <div class="graph-container">
+        <div id="graph"></div>
+        <div class="zoom-controls">
+          <button id="zoom-in-btn" class="zoom-btn">+</button>
+          <button id="zoom-out-btn" class="zoom-btn">-</button>
+        </div>
+        <div class="legend-container">
+          <button class="legend-button legend-black" id="context-btn"></button>
+          <span class="legend-label">Context: Section Title</span>
+          <button class="legend-button legend-blue" id="blue-btn"></button>
+          <span class="legend-label">Disorders</span>
+          <button class="legend-button legend-diamond legend-pink"></button>
+          <span class="legend-label">Level 1</span>
+        </div>
+      </div>
+    </div>
+    <div class="search-container">
+      <input type="text" id="search-bar" placeholder="Eg: Nodes or nodes" />
+      <i class="fas fa-search search-icon"></i>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
